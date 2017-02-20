@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "793493455619",
+    "project_id": "mastersresearch-1339"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793493455619:android:8cdd21613369d008",
+        "android_client_info": {
+          "package_name": "com.wiacek.martyna.mastersresearch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "793493455619-k7am8jv7ir2b8elj00he9atbeefbd21k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wiacek.martyna.mastersresearch",
+            "certificate_hash": "C4D48A6788B184752B790CD116F75228D6547802"
+          }
+        },
+        {
+          "client_id": "793493455619-s3c3deees9ao7uf2caeahu5ogsatl9pu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaMADRYavZqDVkVmtG0iMjsN2A_ZvhN9U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Warsaw Trajectories</string>
+    <string name="action_settings">Settings</string>
+    <string name="startButtonPL">Zacznij badanie</string>
+    <string name="pauseButtonPL">Pauza</string>
+    <string name="startButtonEN">Begin research</string>
+    <string name="pauseButtonEN">Pause</string>
+    <string name="signOffPL">Wyloguj</string>
+    <string name="signOffEN">Sign off</string>
+    <string name="polishDescription">Aplikacja WARSAW TRAJECTORIES jest częścią pracy magisterskiej, pozwalającej na zaklasyfikowanie użytkowników aplikacji mobilnych
+    do grup społecznych na podstawie przebywanych przez nich tras i odwiedzanych miejsc. Używając tej aplikacji i logując się do niej, wyrażasz zgodę na zapisywanie odczytów nadajnika GPS,
+    znajdującego się na Twoim telefonie. Do korzystanie z aplikacji będziesz potrzebować konta Google+.</string>
+    <string name="englishDescription">WARSAW TRAJECTORIES app is a part of research for my Master\'s thesis, which will enable me to create a solution, classifying users
+    to social groups based on their daily trajectories and places they visited. By using this application and signing in you agree to sending and sharing your location data
+    coming from GPS device on your smartphone. To properly use the app you will need your Google+ account.</string>
+    <string name="btn_logout_from_google">Wyloguj</string>
+    <string name="polishDescriptionMA2">Aby zacząć badanie wciśnij przycisk \"ZACZNIJ BADANIE\". Badanie możesz zapauzować w każdym
+        momencie przyciskając przycisk \"PAUZA\". Aby wylogować się z konta Google+ naciśnij przycisk \"WYLOGUJ\".</string>
+    <string name="englishDescriptionMA2">To start the research tap the \"BEGIN RESEARCH\" button. You can pause it any time you want by tapping \"PAUSE\" button.
+    To sign out of your Google+ account click on \"SIGN OFF\" button.</string>
+
+    <string name="yearOfBirthPL">Rok urodzenia</string>
+    <string name="yearOfBirthEN">Year of birth</string>
+    <string name="sexTextPL">Płeć</string>
+    <string name="sexTextEN">Sex</string>
+    <string name="cityTextEN">Location</string>
+    <string name="cityTextPL">Miasto pochodzenia</string>
+    <string name="professionEN">Profession</string>
+    <string name="professionPL">Wymiar etatu</string>
+    <string name="educationPL">Wykształcenie</string>
+    <string name="educationEN">Education</string>
+    <string name="userProfileDialogTitlePL">Zarejestruj profil</string>
+    <string name="userProfileDialogTitleEN">Register profile</string>
+    <string name="registerEN">Register</string>
+    <string name="registerPL">Zarejestruj</string>
+    <string name="polishOnServerStatus">Połączono - zapisywanie lokalizacji na serwerze</string>
+    <string name="polishLocallyStatus">Brak połączenia - zapisywanie odczytów GPS lokalnie</string>
+    <string name="englishLocallyStatus">Disconnected - saving GPS readings locally</string>
+    <string name="englishOnServerStatus">Connected - saving GPS readings on server.</string>
+    <string name="researchPausedStoppedEN">Research not started / paused</string>
+    <string name="researchPausedStoppedPL">Badanie nie rozpoczęte / wstrzymane</string>
+    <string name="carPL">Sposób transportu</string>
+    <string name="relationshipPL">Status związku</string>
+    <string name="vegetarianPL">Wegetarianin</string>
+    <string name="carEN">Transportation</string>
+    <string name="relationshipEN">Relationship status</string>
+    <string name="polishNoMove">Nie wykryto ruchu. Punkt nie został zapisany.</string>
+    <string name="englishNoMove">You have not moved. Your location has not been saved.</string>
+</resources>

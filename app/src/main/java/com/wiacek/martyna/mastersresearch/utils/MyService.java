@@ -30,7 +30,7 @@ import java.util.TimerTask;
 public class MyService extends Service {
 
     public static final long NOTIFY_INTERVAL = 15 * 1000; // 10 seconds
-    private static final double MIN_DISTANCE = 1;
+    private static final double MIN_DISTANCE = 0;
 
     // run on another Thread to avoid crash
     private Handler mHandler = new Handler();
@@ -133,7 +133,6 @@ public class MyService extends Service {
 
                             long timeNow = System.currentTimeMillis();
                             if (!isConnectingToInternet()) {
-                                Log.d("LOG","SAVING POINT IN LOCAL DB");
                                 buildAlertDescription(R.string.polishLocallyStatus, R.string.englishLocallyStatus);
 
                                 mDBHelper.insertLocation(Double.toString(LKL.getLongitude()), Double.toString(LKL.getLatitude()), Long.toString(timeNow));
@@ -144,7 +143,6 @@ public class MyService extends Service {
                                 }
 
                                 buildAlertDescription(R.string.polishOnServerStatus, R.string.englishOnServerStatus);
-                                Log.d("LOG","SAVING POINT ON SERVER");
                                 SendUserLocationTask task = new SendUserLocationTask(getApplicationContext(), new String[]{USERNAME, Long.toString(timeNow), Double.toString(LKL.getLatitude()),
                                         Double.toString(LKL.getLongitude())});
                                 task.runVolley();
@@ -163,7 +161,6 @@ public class MyService extends Service {
         private void synchronizeDataset() {
             ArrayList<String> indices = mDBHelper.getAllLocations();
             for (String s : indices) {
-                Log.d("LOG","UPDATING");
                 ArrayList<String> data = mDBHelper.getData(Integer.parseInt(s));
                 SendUserLocationTask task = new SendUserLocationTask(getApplicationContext(), new String[]{USERNAME, data.get(0),
                         data.get(1), data.get(2)});

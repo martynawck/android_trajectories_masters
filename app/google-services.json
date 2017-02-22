@@ -1,38 +1,41 @@
 {
   "project_info": {
-    "project_number": "793493455619",
-    "project_id": "mastersresearch-1339"
+    "project_number": "329308219204",
+    "project_id": "mastersresearchapp"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:793493455619:android:8cdd21613369d008",
+        "mobilesdk_app_id": "1:329308219204:android:8cdd21613369d008",
         "android_client_info": {
           "package_name": "com.wiacek.martyna.mastersresearch"
         }
       },
       "oauth_client": [
         {
-          "client_id": "793493455619-k7am8jv7ir2b8elj00he9atbeefbd21k.apps.googleusercontent.com",
+          "client_id": "329308219204-k1j9nqcct00ipsnmignvt1mo3vg65tmc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.wiacek.martyna.mastersresearch",
-            "certificate_hash": "C4D48A6788B184752B790CD116F75228D6547802"
+            "certificate_hash": "cbf1d5b4eef393001ffec30e78eb311f7feda0a3"
           }
         },
         {
-          "client_id": "793493455619-s3c3deees9ao7uf2caeahu5ogsatl9pu.apps.googleusercontent.com",
+          "client_id": "329308219204-ughhjmjljqe98k8oi5s16sol724puv4g.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDaMADRYavZqDVkVmtG0iMjsN2A_ZvhN9U"
+          "current_key": "AIzaSyCFEYZC5Cp9-fw-MXGRFv14LmdStH4qSDs"
         }
       ],
       "services": {
         "analytics_service": {
-          "status": 1
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-92220000-1"
+          }
         },
         "appinvite_service": {
           "status": 1,

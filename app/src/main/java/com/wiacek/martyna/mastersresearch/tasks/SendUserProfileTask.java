@@ -43,7 +43,6 @@ public class SendUserProfileTask {
                 {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("RESPONSE", response);
                     }
                 },
                 new Response.ErrorListener()

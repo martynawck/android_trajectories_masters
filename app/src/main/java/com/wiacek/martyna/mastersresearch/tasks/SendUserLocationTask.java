@@ -35,7 +35,6 @@ public class SendUserLocationTask {
                 {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("RESPONSE",response);
                     }
                 },
                 new Response.ErrorListener()

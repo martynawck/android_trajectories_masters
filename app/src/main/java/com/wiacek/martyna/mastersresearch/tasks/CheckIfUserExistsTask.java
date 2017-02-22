@@ -63,7 +63,6 @@ public class CheckIfUserExistsTask {
 
 
                 if (mStatusCode == HttpURLConnection.HTTP_NO_CONTENT) {
-                    Log.d("USER","DOES NOT EXIST");
                     Intent intent = new Intent(mContext, PersonalInfoActivity.class);
                     Bundle b = new Bundle();
                     b.putString("username", urls[0]);
@@ -73,7 +72,6 @@ public class CheckIfUserExistsTask {
                 }
 
                 if (mStatusCode == HttpURLConnection.HTTP_OK){
-                    Log.d("USER","EXIST");
                     Intent intent = new Intent(mContext, MainActivity.class);
                     sessionManager = new SessionManager(mContext);
                     sessionManager.createSession(urls[0]);

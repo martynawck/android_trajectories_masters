@@ -79,7 +79,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Integer deleteLocation (Integer id)
     {
-        Log.d("DELETER",Integer.toString(id));
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NAME,
                 "id = ? ",

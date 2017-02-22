@@ -77,8 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sessionManager = new SessionManager(getApplicationContext());
         username = sessionManager.getValueOfLogin();
 
-        Log.d("USERNAME",username);
-
         isLanguagePolish = true;
         if (sessionManager.getValueOfIsResearchRunning()) {
             isResearchStarted = true;
@@ -238,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                            String[] permissions, int[] grantResults) {
         if (requestCode == MY_PERMISSION_LOCATION
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.d("G","Granted");
             gps = new GPSTracker(MainActivity.this);
         }
     }
@@ -261,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else {
             stopSendingCurrentLocationTask();
-            Log.d("NO OF ROWS", Integer.toString(mDBHelper.numberOfRows()));
             btnStartPause.setText("START");
             isResearchStarted = false;
             isButtonStart = true;

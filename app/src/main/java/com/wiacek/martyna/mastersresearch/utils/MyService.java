@@ -7,20 +7,15 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.wiacek.martyna.mastersresearch.R;
-import com.wiacek.martyna.mastersresearch.activities.MainActivity;
 import com.wiacek.martyna.mastersresearch.tasks.SendUserLocationTask;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,13 +24,19 @@ import java.util.TimerTask;
  */
 public class MyService extends Service {
 
-    public static final long NOTIFY_INTERVAL = 15 * 1000; // 10 seconds
-    private static final double MIN_DISTANCE = 0;
+    public static final long NOTIFY_INTERVAL = 15 * 1000; // 15 seconds
+    private static final double MIN_DISTANCE = 1;
 
     // run on another Thread to avoid crash
-    private Handler mHandler = new Handler();
+    private Handler mHandler;
     // timer handling
     private Timer mTimer = null;
+    SendUserLocationTask task;
+
+    long timeNow = 0;
+    long time1, time2 = 0;
+    ConnectivityManager connectivity;
+    NetworkInfo[] info;
 
     private LocalBroadcastManager broadcaster;
 
@@ -43,18 +44,38 @@ public class MyService extends Service {
     DBHelper mDBHelper;
     SessionManager sessionManager;
 
+    Intent intent;
+    ArrayList<String> indices;
+    ArrayList<String> data;
+
     Location LKL = null;
+    Context context;
 
     static final public String NO_GPS_RESULT = "com.wiacek.martyna.mastersreaserch.NO_GPS";
     static final public String UPDATE_LATLANG = "com.wiacek.martyna.mastersreaserch.UPDATE_LATLANG";
     static final public String LATITUDE = "com.wiacek.martyna.mastersreaserch.LATITUDE";
     static final public String LONGITUDE = "com.wiacek.martyna.mastersreaserch.LONGITUDE";
     static final public String ALERT_DESCRIPTION = "com.wiacek.martyna.mastersresearch.ALERT_DESCRIPTION";
-
     static final public String MESSAGE_PL = "com.wiacek.martyna.mastersresearch.MESSAGE_PL";
     static final public String MESSAGE_EN = "com.wiacek.martyna.mastersresearch.MESSAGE_EN";
 
     String USERNAME;
+
+    public MyService() {}
+
+    public MyService (GPSTracker gpsTracker, Context context) {
+        this.context = context;
+        gps = gpsTracker;
+        sessionManager = new SessionManager(context);
+        USERNAME = sessionManager.getValueOfLogin();
+        broadcaster = LocalBroadcastManager.getInstance(context);
+        mDBHelper = new DBHelper(context);
+        mHandler = new Handler();
+        try {
+                Thread.sleep(2000);
+        }catch (InterruptedException e){
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -64,51 +85,67 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        sessionManager = new SessionManager(getApplicationContext());
-        USERNAME = sessionManager.getValueOfLogin();
-        broadcaster = LocalBroadcastManager.getInstance(getApplicationContext());
-        mDBHelper = new DBHelper(getApplicationContext());
-        gps = new GPSTracker(getApplicationContext());
         return START_STICKY;
+    }
+
+    public void startTimer() {
+        if(mTimer != null) {
+            mTimer.cancel();
+            mTimer.purge();
+        } else {
+            mTimer = new Timer();
+        }
+
+        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        timeNow = System.currentTimeMillis();
+        time1 = SystemClock.elapsedRealtime();
+    }
+
+    public void stopTimer() {
+
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer.purge();
+        }
     }
 
     @Override
     public void onCreate() {
-
-        if(mTimer != null) {
-            mTimer.cancel();
-        } else {
-            // recreate new
-            mTimer = new Timer();
+        sessionManager = new SessionManager(context);
+        USERNAME = sessionManager.getValueOfLogin();
+        broadcaster = LocalBroadcastManager.getInstance(context);
+        mDBHelper = new DBHelper(context);
+        try {
+            Thread.sleep(2000);
+        }catch (InterruptedException e){
         }
-        // schedule task
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
+
     @Override
     public void onDestroy()
     {
-        mTimer.cancel();
         super.onDestroy();
     }
 
     public void buildAlertMessageNoGps() {
-        Intent intent = new Intent(NO_GPS_RESULT);
+        intent = new Intent(NO_GPS_RESULT);
         broadcaster.sendBroadcast(intent);
     }
 
     public void buildAlertDescription(int pl, int en) {
-        Intent intent = new Intent(ALERT_DESCRIPTION);
+        intent = new Intent(ALERT_DESCRIPTION);
         intent.putExtra(MESSAGE_PL, pl);
         intent.putExtra(MESSAGE_EN, en);
         broadcaster.sendBroadcast(intent);
     }
 
     public void updateLatitudeLongitude(String latitude, String longitude) {
-        Intent intent = new Intent(UPDATE_LATLANG);
+        intent = new Intent(UPDATE_LATLANG);
          if(latitude != null)
            intent.putExtra(LATITUDE, latitude);
         if (longitude != null)
             intent.putExtra(LONGITUDE, longitude);
+
         broadcaster.sendBroadcast(intent);
     }
 
@@ -116,13 +153,11 @@ public class MyService extends Service {
 
         @Override
         public void run() {
-            // run on another thread
             mHandler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-                    if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+                    if (!gps.getManager().isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         buildAlertMessageNoGps();
                     } else if (gps.canGetLocation()){
                         updateLatitudeLongitude(Double.toString(gps.getLatitude()), Double.toString(gps.getLongitude()));
@@ -130,8 +165,7 @@ public class MyService extends Service {
                                 gps.checkDistance(LKL, gps.getLocation()) >= MIN_DISTANCE))  {
                             LKL = gps.getLocation();
                             updateLatitudeLongitude(Double.toString(LKL.getLatitude()), Double.toString(LKL.getLongitude()));
-
-                            long timeNow = System.currentTimeMillis();
+                            timeNow = System.currentTimeMillis();
                             if (!isConnectingToInternet()) {
                                 buildAlertDescription(R.string.polishLocallyStatus, R.string.englishLocallyStatus);
 
@@ -143,7 +177,7 @@ public class MyService extends Service {
                                 }
 
                                 buildAlertDescription(R.string.polishOnServerStatus, R.string.englishOnServerStatus);
-                                SendUserLocationTask task = new SendUserLocationTask(getApplicationContext(), new String[]{USERNAME, Long.toString(timeNow), Double.toString(LKL.getLatitude()),
+                                task = new SendUserLocationTask(context, new String[]{USERNAME, Long.toString(timeNow), Double.toString(LKL.getLatitude()),
                                         Double.toString(LKL.getLongitude())});
                                 task.runVolley();
                             }
@@ -151,18 +185,18 @@ public class MyService extends Service {
                             buildAlertDescription(R.string.polishNoMove, R.string.englishNoMove);
                         }
                     } else {
-                        gps.showSettingsAlert();
+                        buildAlertMessageNoGps();
                     }
                 }
-
             });
         }
 
+
         private void synchronizeDataset() {
-            ArrayList<String> indices = mDBHelper.getAllLocations();
+            indices = mDBHelper.getAllLocations();
             for (String s : indices) {
-                ArrayList<String> data = mDBHelper.getData(Integer.parseInt(s));
-                SendUserLocationTask task = new SendUserLocationTask(getApplicationContext(), new String[]{USERNAME, data.get(0),
+                data = mDBHelper.getData(Integer.parseInt(s));
+                task = new SendUserLocationTask(context, new String[]{USERNAME, data.get(0),
                         data.get(1), data.get(2)});
                 task.runVolley();
                 mDBHelper.deleteLocation(Integer.parseInt(s));
@@ -170,9 +204,9 @@ public class MyService extends Service {
         }
 
         public boolean isConnectingToInternet(){
-            ConnectivityManager connectivity = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            connectivity = (ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE);
             if (connectivity != null) {
-                NetworkInfo[] info = connectivity.getAllNetworkInfo();
+                info = connectivity.getAllNetworkInfo();
                 if (info != null)
                     for (int i = 0; i < info.length; i++)
                         if (info[i].getState() == NetworkInfo.State.CONNECTED) {

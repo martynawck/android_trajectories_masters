@@ -9,8 +9,8 @@ android {
         applicationId "com.wiacek.martyna.mastersresearch"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.155555559"
+        versionCode 5
+        versionName "1.5"
     }
     buildTypes {
         release {

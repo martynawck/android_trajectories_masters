@@ -1,8 +1,13 @@
 package com.wiacek.martyna.mastersresearch.activities;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Build;
+import android.os.PowerManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,6 +84,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             btnSignIn.setOnClickListener(this);
             polish.setOnClickListener(this);
             english.setOnClickListener(this);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("INFORMACJA");
+            builder.setMessage("Upewnij się, że przed każdym korzystaniem z aplikacji wyłączony został TRYB OSZCZĘDZAJĄCY BATERIĘ. " +
+                    "W przeciwnym wypadku wyniki badania będą nieprawidłowe! By polepszyć precyzję pomiaru ustaw metodę pobierania lokalizacji na GPS, WiFi oraz sieci komórkowe.");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 

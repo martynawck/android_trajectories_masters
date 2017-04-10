@@ -10,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.wiacek.martyna.mastersresearch.utils.MyRequestQueue;
 import com.wiacek.martyna.mastersresearch.utils.ServerUrl;
 
 /**
@@ -27,7 +28,10 @@ public class SendUserLocationTask {
 
     public void runVolley() {
 
-        RequestQueue queue = Volley.newRequestQueue(mContext);
+     //   RequestQueue queue = Volley.newRequestQueue()RequestQueue(new NoCache(), new BasicNetwork(new HurlStack()));
+     //   RequestQueue queue = MyRequestQueue.getInstance(mContext).
+       //         getRequestQueue();
+       // RequestQueue queue = Volley.newRequestQueue(mContext);
         String url = ServerUrl.BASE_URL+"location?username="+urls[0]+"&client_timestamp="+urls[1] +
                 "&latitude="+urls[2]+"&longitude="+urls[3];
         StringRequest dr = new StringRequest(Request.Method.POST, url,
@@ -46,7 +50,9 @@ public class SendUserLocationTask {
         );
 
         dr.setRetryPolicy(new DefaultRetryPolicy(0, -1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        queue.add(dr);
+        dr.setShouldCache(false);
+        MyRequestQueue.getInstance(mContext).addToRequestQueue(dr);
+       // queue.add(dr);
     }
 }
 

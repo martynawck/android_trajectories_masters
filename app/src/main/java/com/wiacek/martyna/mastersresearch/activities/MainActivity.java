@@ -1,7 +1,6 @@
 package com.wiacek.martyna.mastersresearch.activities;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,13 +8,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -27,14 +24,10 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.wiacek.martyna.mastersresearch.utils.DBHelper;
 import com.wiacek.martyna.mastersresearch.utils.GPSTracker;
 import com.wiacek.martyna.mastersresearch.utils.MyService;
 import com.wiacek.martyna.mastersresearch.R;
-import com.wiacek.martyna.mastersresearch.tasks.SendUserLocationTask;
 import com.wiacek.martyna.mastersresearch.utils.SessionManager;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
          GoogleApiClient.OnConnectionFailedListener{
@@ -46,13 +39,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean mSignInClicked;
     private ConnectionResult mConnectionResult;
     GPSTracker gps;
+    MyService myService = null;
     private Button btnSignOut, btnStartPause;
     private ImageButton polish, english;
     private TextView description;
     private boolean isButtonStart;
     private boolean isResearchStarted;
     private boolean isLanguagePolish;
-    private DBHelper mDBHelper;
     private String username;
     private TextView statusDescription, userIdValue;
     private TextView latitudeShow, longitudeShow;
@@ -77,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sessionManager = new SessionManager(getApplicationContext());
         username = sessionManager.getValueOfLogin();
 
+
         isLanguagePolish = true;
         if (sessionManager.getValueOfIsResearchRunning()) {
             isResearchStarted = true;
@@ -99,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         gps = new GPSTracker(MainActivity.this);
 
-        mDBHelper = new DBHelper(MainActivity.this);
         userIdValue = (TextView) findViewById(R.id.userIdValue);
         description = (TextView) findViewById(R.id.description);
         btnSignOut = (Button) findViewById(R.id.btn_sign_out);
@@ -122,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnSignOut.setOnClickListener(this);
         btnStartPause.setVisibility(View.VISIBLE);
         btnSignOut.setVisibility(View.VISIBLE);
+
+        if (sessionManager.getValueOfIsResearchRunning() == true)
+            startSendingCurrentLocationTask();
     }
 
     /****** BUTTONS PRESSED *****/
@@ -134,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onResume() {
-
         super.onResume();  // Always call the superclass method first
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver((receiver),
                 new IntentFilter(MyService.NO_GPS_RESULT)
@@ -148,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void signOutFromGplus() {
-
         if (mGoogleApiClient.isConnected()) {
             sessionManager.destroySession();
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
@@ -196,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mGoogleApiClient.isConnected()) {
             stopSendingCurrentLocationTask();
             mGoogleApiClient.disconnect();
-
         }
     }
 
@@ -230,7 +223,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**** TRAJECTORY CALCULATION****/
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
@@ -245,17 +237,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gps.getLocation();
 
         if (isButtonStart) {
-            if (gps.canGetLocation()) {
-                latitudeShow.setText(Double.toString(gps.getLatitude()));
-                longitudeShow.setText(Double.toString(gps.getLongitude()));
-                gps.stopUsingGPS();
-                startSendingCurrentLocationTask();
-                btnStartPause.setText("PAUZA");
-                isButtonStart = false;
-                isResearchStarted = true;
-            } else {
-                gps.showSettingsAlert();
-            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("INFORMACJA");
+            builder.setMessage("Upewnij się, że przed każdym korzystaniem z aplikacji wyłączony został TRYB OSZCZĘDZAJĄCY BATERIĘ. " +
+                    "W przeciwnym wypadku wyniki badania będą nieprawidłowe! By polepszyć precyzję pomiaru ustaw metodę pobierania lokalizacji na GPS, WiFi oraz sieci komórkowe.");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    if (gps.canGetLocation()) {
+                        latitudeShow.setText(Double.toString(gps.getLatitude()));
+                        longitudeShow.setText(Double.toString(gps.getLongitude()));
+                        gps.stopUsingGPS();
+                        startSendingCurrentLocationTask();
+                        btnStartPause.setText("PAUZA");
+                        isButtonStart = false;
+                        isResearchStarted = true;
+                    } else {
+                        gps.showSettingsAlert();
+                    }
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         } else {
             stopSendingCurrentLocationTask();
             btnStartPause.setText("START");
@@ -265,7 +267,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**** LANGUAGE ***/
-
     private void changeLanguage(String lang) {
         if (lang == "PL") {
             description.setText(getString(R.string.polishDescriptionMA2));
@@ -276,7 +277,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     statusDescription.setText(getString((R.string.polishOnServerStatus)));
                 } else
                     statusDescription.setText(getString(R.string.polishLocallyStatus));
-
             }
             else {
                 btnStartPause.setText(getString(R.string.startButtonPL));
@@ -291,7 +291,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     statusDescription.setText(getString((R.string.englishOnServerStatus)));
                 } else
                     statusDescription.setText(getString(R.string.englishLocallyStatus));
-
             }
             else {
                 btnStartPause.setText(getString(R.string.startButtonEN));
@@ -300,46 +299,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void buildAlertMessageNoGps() {
-        isResearchStarted = false;
-        if (isLanguagePolish)
-            changeLanguage("PL");
-        else
-            changeLanguage("EN");
+    boolean stopToSetGPS() {
+            stopSendingCurrentLocationTask();
+            btnStartPause.setText("START");
+            isResearchStarted = false;
+            isButtonStart = true;
+            if (isLanguagePolish)
+                changeLanguage("PL");
+            else
+                changeLanguage("EN");
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String message,yes,no;
-        if (isLanguagePolish == true) {
-            message = "Twój GPS jest wyłączony, czy chcesz go włączyć?";
-            yes = "Tak";
-            no = "Nie";
-        } else {
-             message="Your GPS seems to be disabled, do you want to enable it?";
-            yes = "Yes";
-            no = "No";
-        }
-        builder.setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton(yes, new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton(no, new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
+            gps.showSettingsAlert();
+
+        return true;
     }
 
-    /**** RECEIVERS ******/
+        /**** RECEIVERS ******/
     BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
+            private boolean firstConnect = true;
+            private long lastTime = 0;
+            @Override
         public void onReceive(Context context, Intent intent) {
-            buildAlertMessageNoGps();
-            stopSendingCurrentLocationTask();
+
+                long timeNow = System.currentTimeMillis();
+                if ( timeNow - lastTime >= 15*1000) {
+                    firstConnect = true;
+                }
+
+                if(firstConnect) {
+                    firstConnect = false;
+                    lastTime = timeNow;
+                    stopToSetGPS();
+                }
         }
     };
 
@@ -348,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             latitudeShow.setText(intent.getStringExtra(MyService.LATITUDE));
             longitudeShow.setText(intent.getStringExtra(MyService.LONGITUDE));
+
         }
     };
 
@@ -373,9 +365,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new IntentFilter(MyService.ALERT_DESCRIPTION)
         );
 
-        Intent serviceIntent = new Intent(this,MyService.class);
-        serviceIntent.putExtra("username", username);
-        startService(serviceIntent);
+        myService = new MyService(gps, getApplicationContext());
+        myService.startTimer();
         sessionManager.setValueOfIsResearchRunning(true);
     }
 
@@ -384,7 +375,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver);
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver2);
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(receiver3);
-        stopService(new Intent(this, MyService.class));
+        if (myService != null)
+            myService.stopTimer();
         sessionManager.setValueOfIsResearchRunning(false);
     }
 }

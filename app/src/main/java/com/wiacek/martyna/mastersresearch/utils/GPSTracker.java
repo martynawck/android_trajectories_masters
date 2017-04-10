@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -30,6 +31,10 @@ public class GPSTracker extends Service implements LocationListener {
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
+    }
+
+    public LocationManager getManager() {
+        return locationManager;
     }
 
     public Location getLocation() {
@@ -97,7 +102,6 @@ public class GPSTracker extends Service implements LocationListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return location;
     }
 
@@ -106,7 +110,6 @@ public class GPSTracker extends Service implements LocationListener {
             locationManager.removeUpdates(GPSTracker.this);
         }
     }
-
 
     public double getLatitude(){
         if(location != null){
@@ -127,6 +130,7 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     public void showSettingsAlert(){
+        Log.d("alert","alert2");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
         alertDialog.setTitle("Ustawienia GPS");
         alertDialog.setMessage("GPS nie jest włączony. Czy chcesz przejść teraz do menu ustawień?");
